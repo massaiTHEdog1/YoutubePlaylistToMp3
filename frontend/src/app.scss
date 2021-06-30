@@ -1,0 +1,10 @@
+// Define variable defaults
+$body-bg: #181818;
+$body-color: white;
+
+$enable-rounded: false;
+$enable-shadows: false;
+
+// Then import Bootstrap an BootstrapVue SCSS files (order is important)
+@import 'node_modules/bootstrap/scss/bootstrap.scss';
+@import 'node_modules/bootstrap-vue/src/index.scss';
