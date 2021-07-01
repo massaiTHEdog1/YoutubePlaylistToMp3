@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LiteDB;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace backend.Controllers
 	public class MusicController : ControllerBase
 	{
 		private readonly IConfiguration Configuration;
+		public const string RegexVideoId = ".*[\\?|&]v=([^&]*).*";
 
 		public MusicController(IConfiguration configuration)
 		{
@@ -23,9 +25,9 @@ namespace backend.Controllers
 		}
 
 		[HttpGet("music-list")]
-		public async Task<ActionResult<List<Music>>> GetMusicList()
+		public async Task<ActionResult<List<MusicDto>>> GetMusicList()
 		{
-			var musicList = new List<Music>();
+			var musicList = new List<MusicDto>();
 
 			var musicsFolderPath = Configuration["MusicsFolder"];
 
@@ -35,7 +37,7 @@ namespace backend.Controllers
 			{
 				var file = TagLib.File.Create(music);
 
-				musicList.Add(new Music()
+				musicList.Add(new MusicDto()
 				{
 					Artist = file.Tag.FirstPerformer,
 					Title = file.Tag.Title
@@ -46,25 +48,14 @@ namespace backend.Controllers
 		}
 
 		[HttpPost("download")]
-		public async Task<ActionResult<Music>> Download(DownloadDto dto)
+		public async Task<ActionResult<MusicDto>> Download(DownloadDto dto)
 		{
-			var context = new ValidationContext(dto);
-
-			var validationResults = new List<ValidationResult>();
-
-			bool isValid = Validator.TryValidateObject(dto, context, validationResults, true);
-
-			if (!isValid)
-				return BadRequest();
-
-			var youtubeDLPath = Configuration["YoutubeDLPath"];
-
 			var process = new Process
 			{
 				StartInfo = new ProcessStartInfo
 				{
 					WorkingDirectory = Path.GetTempPath(),
-					FileName = youtubeDLPath,
+					FileName = Configuration["YoutubeDLPath"],
 					Arguments = $"--extract-audio --audio-quality 0 --output \"{Guid.NewGuid()}.%(ext)s\" {dto.Url}",
 					UseShellExecute = false,
 					RedirectStandardOutput = true,
@@ -81,7 +72,6 @@ namespace backend.Controllers
 			var tempFilename = Regex.Match(output, "\\[download\\] Destination: (.*)\n").Groups[1].Value;
 
 			var musicsFolderPath = Configuration["MusicsFolder"];
-			var ffmpegPath = Configuration["ffmpegPath"];
 
 			var finalFilename = $"{dto.Artist} - {dto.Title}.mp3";
 
@@ -90,7 +80,7 @@ namespace backend.Controllers
 				StartInfo = new ProcessStartInfo
 				{
 					WorkingDirectory = musicsFolderPath,
-					FileName = ffmpegPath,
+					FileName = Configuration["ffmpegPath"],
 					Arguments = $"-i \"{Path.Combine(Path.GetTempPath(), tempFilename)}\" -vn -ab 192k -ar 44100 -y \"{finalFilename}\"",
 					UseShellExecute = false,
 					RedirectStandardOutput = true,
@@ -111,17 +101,39 @@ namespace backend.Controllers
 			file.Tag.Performers = new string[] { dto.Artist };
 			file.Save();
 
-			return Ok(new Music()
+			var youtubeVideoId = Regex.Match(dto.Url, RegexVideoId).Groups[1].Value;
+
+			using (var db = new LiteDatabase(Configuration["LiteDB"]))
+			{
+				var col = db.GetCollection<MusicDatabase>("musics");
+
+				var music = new MusicDatabase
+				{
+					YoutubeId = youtubeVideoId
+				};
+
+				col.Insert(music);
+			}
+
+			return Ok(new MusicDto()
 			{
 				Artist = dto.Artist,
-				Title = dto.Title
+				Title = dto.Title,
+				Id = youtubeVideoId
 			});
 		}
 
-		public class Music
+		public class MusicDatabase
 		{
-			public string Title { get; set; }
+			public int Id { get; set; }
+			public string YoutubeId { get; set; }
+		}
+
+		public class MusicDto
+		{
 			public string Artist { get; set; }
+			public string Title { get; set; }
+			public string Id { get; set; }
 		}
 
 		public class DownloadDto
@@ -131,6 +143,7 @@ namespace backend.Controllers
 			[Required(AllowEmptyStrings = false)]
 			public string Artist { get; set; }
 			[Required(AllowEmptyStrings = false)]
+			[RegularExpression(RegexVideoId)]
 			public string Url { get; set; }
 		}
 	}
