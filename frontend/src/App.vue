@@ -9,13 +9,54 @@
 		</b-row>
 		<b-row>
 			<b-col>
-				<!-- <keep-alive> -->
+				<keep-alive>
 					<router-view />
-				<!-- </keep-alive> -->
+				</keep-alive>
 			</b-col>
 		</b-row>
 	</b-container>
 </template>
+
+<script lang="ts">
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { EventBus } from "@/main";
+
+@Component({
+	components: {
+		
+	},
+})
+export default class App extends Vue {
+
+	async mounted()
+	{
+		EventBus.$on("addAlertToast", this.addAlertToast);
+		EventBus.$on("addSuccessToast", this.addSuccessToast);
+	}
+
+	async addAlertToast(text : string)
+	{
+		this.$bvToast.toast(text, {
+			title: 'Error',
+			variant: 'danger',
+			solid: true,
+			appendToast: true,
+			toaster: 'b-toaster-bottom-right'
+		});
+	}
+
+	async addSuccessToast(text : string)
+	{
+		this.$bvToast.toast(text, {
+			title: 'Success',
+			variant: 'success',
+			solid: true,
+			appendToast: true,
+			toaster: 'b-toaster-bottom-right'
+		});
+	}
+}
+</script>
 
 <style lang="scss" scoped>
 	@import 'bootstrap/scss/_functions.scss';

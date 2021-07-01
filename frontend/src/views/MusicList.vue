@@ -26,6 +26,7 @@ import MusicItem from "@/components/MusicItem.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import {Music} from "@/classes/Music";
 import axios from 'axios'
+import { EventBus } from "@/main";
 
 @Component({
 	components: {
@@ -46,12 +47,19 @@ export default class MusicList extends Vue {
 	{
 		this.isLoading = true;
 
-		var result = await axios.get("/api/music/music-list");
+		try
+		{
+			var result = await axios.get("/api/music/music-list");
 
-		this.musics = result.data;
+			this.musics = result.data;
 
-		this.musics.forEach(val => this.musicsFiltered.push(Object.assign({}, val)));
-
+			this.musics.forEach(val => this.musicsFiltered.push(Object.assign({}, val)));
+		}
+		catch(e)
+		{
+			EventBus.$emit("addAlertToast", "Loading failed. Please refresh the page.");
+		}
+		
 		this.isLoading = false;
 	}
 

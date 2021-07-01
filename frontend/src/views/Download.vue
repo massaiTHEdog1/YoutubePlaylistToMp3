@@ -40,7 +40,8 @@
 <script lang="ts">
 import LoadingPane from "@/components/LoadingPane.vue";
 import axios from "axios";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { EventBus } from "@/main";
 
 @Component({
 	components: {
@@ -95,15 +96,24 @@ export default class Download extends Vue {
 		this.isLoading = true;
 		event.preventDefault();
 		
-		var result = await axios.post("/api/music/download", { 
-			Title: this.mutableTitle,
-			Artist: this.mutableArtist,
-			Url: this.mutableUrl
-		});
+		try
+		{
+			await axios.post("/api/music/download", { 
+				Title: this.mutableTitle,
+				Artist: this.mutableArtist,
+				Url: this.mutableUrl
+			});
 
-		this.mutableUrl = "";
-		this.mutableArtist = "";
-		this.mutableTitle = "";
+			this.mutableUrl = "";
+			this.mutableArtist = "";
+			this.mutableTitle = "";
+
+			EventBus.$emit("addSuccessToast", "Downloaded !");
+		}
+		catch(e)
+		{
+			EventBus.$emit("addAlertToast", "Failed to download");
+		}	
 
 		this.isLoading = false;
 	}
