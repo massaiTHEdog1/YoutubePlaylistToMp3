@@ -1,4 +1,6 @@
-﻿using LiteDB;
+﻿using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using LiteDB;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -89,9 +91,6 @@ namespace backend.Controllers
 			};
 			process.Start();
 
-			reader = process.StandardOutput;
-			output = await reader.ReadToEndAsync();
-
 			await process.WaitForExitAsync();
 
 			System.IO.File.Delete(Path.Combine(Path.GetTempPath(), tempFilename));
@@ -121,6 +120,63 @@ namespace backend.Controllers
 				Title = dto.Title,
 				Id = youtubeVideoId
 			});
+		}
+
+		[HttpGet("playlist")]
+		public async Task<ActionResult<PlaylistResponseDto>> GetPlaylist(string pageToken = null)
+		{
+			var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+			{
+				ApiKey = Configuration["youtube:apiKey"],
+				ApplicationName = "YoutubePlaylistToMp3"
+			});
+
+			var playlistRequest = youtubeService.PlaylistItems.List("snippet");
+			playlistRequest.PlaylistId = Configuration["youtube:playlistId"];
+			playlistRequest.MaxResults = 50;
+			playlistRequest.PageToken = pageToken;
+			playlistRequest.PrettyPrint = false;
+
+			var response = await playlistRequest.ExecuteAsync();
+
+			var dto = new PlaylistResponseDto()
+			{
+				Items = new List<PlaylistItemDto>(),
+				NextPageToken = response.NextPageToken
+			};
+
+			foreach (var element in response.Items)
+			{
+				dto.Items.Add(new PlaylistItemDto()
+				{
+					Id = element.Snippet.ResourceId.VideoId,
+					Channel = element.Snippet.ChannelTitle,
+					Downloaded = false,
+					Title = element.Snippet.Title,
+					ThumbnailUrl = element.Snippet.Thumbnails.Default__.Url,
+					Url = "https://www.youtube.com/watch?v=" + element.Snippet.ResourceId.VideoId
+				});
+			}
+
+			youtubeService.Dispose();
+
+			return Ok(dto);
+		}
+
+		public class PlaylistItemDto
+		{
+			public string Id { get; set; }
+			public bool Downloaded { get; set; }
+			public string Title { get; set; }
+			public string Channel { get; set; }
+			public string Url { get; set; }
+			public string ThumbnailUrl { get; set; }
+		}
+
+		public class PlaylistResponseDto
+		{
+			public IList<PlaylistItemDto> Items { get; set; }
+			public string NextPageToken { get; set; }
 		}
 
 		public class MusicDatabase
