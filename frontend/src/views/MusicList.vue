@@ -49,7 +49,7 @@ export default class MusicList extends Vue {
 
 		try
 		{
-			var result = await axios.get("/api/music/music-list");
+			var result = await axios.get(process.env.VUE_APP_BASE_URL + "/api/music/music-list");
 
 			this.musics = result.data;
 
