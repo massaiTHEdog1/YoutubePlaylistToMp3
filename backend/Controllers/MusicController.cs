@@ -145,16 +145,25 @@ namespace backend.Controllers
 				NextPageToken = response.NextPageToken
 			};
 
+			List<MusicDatabase> musics;
+
+			using (var db = new LiteDatabase(Configuration["LiteDB"]))
+			{
+				var col = db.GetCollection<MusicDatabase>("musics");
+
+				musics = col.FindAll().ToList();
+			}
+
 			foreach (var element in response.Items)
 			{
 				dto.Items.Add(new PlaylistItemDto()
 				{
 					Id = element.Snippet.ResourceId.VideoId,
-					Channel = element.Snippet.ChannelTitle,
-					Downloaded = false,
+					Channel = element.Snippet.VideoOwnerChannelTitle,
+					Downloaded = musics.Any(x => x.YoutubeId == element.Snippet.ResourceId.VideoId),
 					Title = element.Snippet.Title,
-					ThumbnailUrl = element.Snippet.Thumbnails.Default__.Url,
-					Url = "https://www.youtube.com/watch?v=" + element.Snippet.ResourceId.VideoId
+					ThumbnailUrl = element.Snippet.Thumbnails.Default__?.Url,
+					Url = "https://www.youtube.com/watch?v=" + element.Snippet.ResourceId.VideoId,
 				});
 			}
 

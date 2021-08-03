@@ -98,7 +98,7 @@ export default class Download extends Vue {
 		
 		try
 		{
-			await axios.post("/api/music/download", { 
+			await axios.post(process.env.VUE_APP_BASE_URL + "/api/music/download", { 
 				Title: this.mutableTitle,
 				Artist: this.mutableArtist,
 				Url: this.mutableUrl

@@ -2,23 +2,27 @@
 	<div id="playlist-item-container">
 		<div id="playlist-item-content">
 			<div id="playlist-item-image-container">
-				<img  src="https://s.yimg.com/os/creatr-uploaded-images/2021-02/572c4830-721d-11eb-bb63-96959c3b62f2"/>
+				<img v-bind:src="playlistItem.thumbnailUrl"/>
 			</div>
 
 			<div id="playlist-item-description">
-				<h5>Rick Astley - Never Gonna Give You Up (Official Music Video)</h5>
-				<p>Rick Astley</p>
+				<h5>{{playlistItem.title}}</h5>
+				<p>{{playlistItem.channel}}</p>
+				<font-awesome-icon v-if="playlistItem.downloaded" icon="check-circle" style="color: green;" title="Downloaded" />
+				<font-awesome-icon v-else-if="playlistItem.downloading" icon="spinner" spin size="lg" title="Downloading..." />
+				<b-button v-else-if="playlistItem.title !== 'Deleted video' && playlistItem.title !== 'Private video'" variant="primary" size="sm" @click="$emit('downloadClick', playlistItem)">Download</b-button>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import { PlaylistItemDto } from "@/classes/PlaylistItemDto";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class PlaylistItem extends Vue {
-	@Prop() private isLoading! : boolean;
+	@Prop() playlistItem!: PlaylistItemDto;
 }
 </script>
 
@@ -30,7 +34,7 @@ export default class PlaylistItem extends Vue {
 
 	#playlist-item-container
 	{
-		height: 100px;
+		height: 120px;
 		width: 100%;
 		max-width: 900px;
 		padding: 10px 20px 0px 0px;
@@ -61,33 +65,36 @@ export default class PlaylistItem extends Vue {
 
 	#playlist-item-image-container > img
 	{
-		width: 100%;
-		height: 100%;
+		width: 105px;
+		height: 79px;
 	}
 
 	@include media-breakpoint-down(xs) {
 		#playlist-item-image-container img
 		{
-			max-height: 60%;
+			width: 80px;
+			height: 60px;
 		}
 	}
 
 	#playlist-item-description
 	{
 		margin-left: 10px;
+		overflow: hidden;
 	}
 
 	#playlist-item-description h5
 	{
+		line-height: 1.4;
+		margin-bottom: 0px;
 		overflow: hidden;
+		white-space: nowrap;
 		text-overflow: ellipsis;
-		display: -webkit-box;
-		-webkit-line-clamp: 2; /* number of lines to show */
-		-webkit-box-orient: vertical;
 	}
 
 	#playlist-item-description p
 	{
 		color: rgb(170, 170, 170);
+		margin-bottom: 10px;
 	}
 </style>

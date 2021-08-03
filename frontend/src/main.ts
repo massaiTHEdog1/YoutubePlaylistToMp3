@@ -9,6 +9,14 @@ import "bootstrap-vue/dist/bootstrap-vue.css";
 
 import './app.scss'
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faCheckCircle, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faCheckCircle, faSpinner)
+
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+
 Vue.config.productionTip = false;
 
 Vue.use(BootstrapVue);

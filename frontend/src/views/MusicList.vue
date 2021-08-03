@@ -40,7 +40,7 @@ export default class MusicList extends Vue {
 	
 	isLoading = false;
 
-	private musics : Music[] = [];
+	musics : Music[] = [];
 	musicsFiltered : Music[] = [];
 
 	async mounted()
