@@ -16,6 +16,7 @@ namespace backend.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
+	[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 	public class MusicController : ControllerBase
 	{
 		private readonly IConfiguration Configuration;

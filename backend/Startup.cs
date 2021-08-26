@@ -55,14 +55,7 @@ namespace backend
             app.UseRouting();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-            app.UseSpaStaticFiles(new StaticFileOptions()
-            {
-                OnPrepareResponse = context =>
-                {
-                    context.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
-                    context.Context.Response.Headers.Add("Expires", "-1");
-                }
-            });
+            app.UseSpaStaticFiles();
             app.UseSpa(configuration: builder =>
             {
                 if (env.IsDevelopment())
