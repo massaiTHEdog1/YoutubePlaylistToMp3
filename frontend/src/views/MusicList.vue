@@ -49,6 +49,9 @@ export default class MusicList extends Vue {
 
 		try
 		{
+			const user = await this.$authService.mgr.getUser();
+			axios.defaults.headers.common["Authorization"] = "Bearer " + user!.access_token;
+			
 			var result = await axios.get(process.env.VUE_APP_BASE_URL + "/api/music/music-list");
 
 			this.musics = result.data;

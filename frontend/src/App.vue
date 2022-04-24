@@ -1,7 +1,7 @@
 <template>
 	<b-container fluid>
 		<b-row style="background-color: #212121;">
-			<router-link to="/" exact class="nav-item">Playlist</router-link>
+			<router-link to="/playlist" exact class="nav-item">Playlist</router-link>
 			
 			<router-link to="/download" class="nav-item">Download</router-link>
 			
@@ -20,6 +20,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { EventBus } from "@/main";
+import { User } from "oidc-client";
 
 @Component({
 	components: {
@@ -27,6 +28,8 @@ import { EventBus } from "@/main";
 	},
 })
 export default class App extends Vue {
+
+	user: User | null = null;
 
 	async mounted()
 	{

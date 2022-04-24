@@ -98,6 +98,9 @@ export default class Download extends Vue {
 		
 		try
 		{
+			const user = await this.$authService.mgr.getUser();
+			axios.defaults.headers.common["Authorization"] = "Bearer " + user!.access_token;
+			
 			await axios.post(process.env.VUE_APP_BASE_URL + "/api/music/download", { 
 				Title: this.mutableTitle,
 				Artist: this.mutableArtist,

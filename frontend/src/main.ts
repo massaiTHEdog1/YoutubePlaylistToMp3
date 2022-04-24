@@ -12,15 +12,18 @@ import './app.scss'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faCheckCircle, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import AuthService from "./services/AuthService";
 
 library.add(faCheckCircle, faSpinner)
 
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.config.productionTip = false;
 
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
+
+Vue.prototype.$authService = new AuthService();
 
 export const EventBus = new Vue();
 

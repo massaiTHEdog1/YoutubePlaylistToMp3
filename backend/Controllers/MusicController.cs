@@ -1,6 +1,7 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using LiteDB;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -17,6 +18,7 @@ namespace backend.Controllers
 	[Route("api/[controller]")]
 	[ApiController]
 	[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+	[Authorize("ApiScope")]
 	public class MusicController : ControllerBase
 	{
 		private readonly IConfiguration Configuration;

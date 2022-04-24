@@ -11,3 +11,11 @@ declare global {
     }
   }
 }
+
+import AuthService from "./services/AuthService";
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    $authService: AuthService;
+  }
+}

@@ -81,7 +81,7 @@ export default class Playlist extends Vue {
 	currentItem! : PlaylistItemDto;
 
 	async mounted() {
-		await this.loadPlaylist();		
+		await this.loadPlaylist();
 	}
 
 	async loadPlaylist(pageToken? : string)
@@ -90,6 +90,9 @@ export default class Playlist extends Vue {
 
 		try
 		{
+			const user = await this.$authService.mgr.getUser();
+			axios.defaults.headers.common["Authorization"] = "Bearer " + user!.access_token;
+
 			var result = await axios.get<PlaylistResponseDto>(process.env.VUE_APP_BASE_URL + "/api/music/playlist?pageToken=" + (pageToken ?? ""));
 
 			result.data.items.forEach(element => element.downloading = false);
@@ -120,6 +123,9 @@ export default class Playlist extends Vue {
 
 		try
 		{
+			const user = await this.$authService.mgr.getUser();
+			axios.defaults.headers.common["Authorization"] = "Bearer " + user!.access_token;
+			
 			await axios.post(process.env.VUE_APP_BASE_URL + "/api/music/download", { 
 				Title: title,
 				Artist: artist,
