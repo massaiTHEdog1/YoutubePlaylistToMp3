@@ -7,10 +7,8 @@ import { Component, Vue } from "vue-property-decorator";
 
 @Component({})
 export default class Login extends Vue {
-
-	login()
-	{
-		this.$authService.mgr.signinRedirect();
-	}
+  async login(): Promise<void> {
+    await this.$authService.mgr.signinRedirect();
+  }
 }
 </script>

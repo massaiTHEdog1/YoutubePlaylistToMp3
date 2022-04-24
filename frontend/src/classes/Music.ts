@@ -1,5 +1,4 @@
-export class Music
-{
-	title! : string;
-	artist! : string;
+export class Music {
+  title!: string;
+  artist!: string;
 }

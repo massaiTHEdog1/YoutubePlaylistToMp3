@@ -1,5 +1,4 @@
-import axios from "axios";
-import Oidc, { User, UserManager, UserManagerSettings } from "oidc-client";
+import Oidc, { UserManager, UserManagerSettings } from "oidc-client";
 
 export default class AuthService {
   mgr: UserManager;

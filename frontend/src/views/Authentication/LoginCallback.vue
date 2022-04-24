@@ -9,7 +9,7 @@ import { Component, Vue } from "vue-property-decorator";
 export default class LoginCallback extends Vue {
   async mounted(): Promise<void> {
     try {
-      const result = await this.$authService.mgr.signinRedirectCallback();
+      await this.$authService.mgr.signinRedirectCallback();
     } catch (e) {
       //
     }
